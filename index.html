@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br">
+    <head>
+        <meta charset="utf-8" />
+        <title>O enigma do labirinto</title>
+        <link rel="icon" type="image/png" href="images/favicon.png" />
+        <style>
+            .action-item { background-color: black; }
+            .locked-item { background-color: gray; }
+        </style>
+    </head>
+    <body>
+        <h1>O enigma do labirinto</h1>
+        <div id="labirinty-table">
+        </div>
+        <script src="labirinty.js" ></script>
+        <script charset="utf-8">
+            var game = new Labirinty();
+            game.setTableOn("labirinty-table");
+            game.setPlayers(4);
+            game.play();
+        </script>
+    </body>
+</html>
