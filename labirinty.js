@@ -6,30 +6,10 @@ function Labirinty() {
     var _players = 4;
     var _baseBoardStructure = "";
     var _itemTypes = ["┌", "┐", "└", "┘", "├", "┤", "┬", "┴", "─", "│"];
-    var _
-    var _fixedBlocks = [
-        // Fixed line 1
-        {line: 1, column: 1, block: new BoardBlock(true, false, false, true, true, _itemTypes[0])}, 
-        {line: 1, column: 3, block: new BoardBlock(true, false, true, true, true, _itemTypes[6])}, 
-        {line: 1, column: 5, block: new BoardBlock(true, false, true, true, true, _itemTypes[6])}, 
-        {line: 1, column: 7, block: new BoardBlock(true, false, true, true, false, _itemTypes[1])},
-        // Fixed line 2
-        {line: 3, column: 1, block: new BoardBlock(true, true, false, true, true, _itemTypes[4])},
-        {line: 3, column: 3, block: new BoardBlock(true, true, false, true, true, _itemTypes[4])},
-        {line: 3, column: 5, block: new BoardBlock(true, false, true, true, true, _itemTypes[6])}, 
-        {line: 3, column: 7, block: new BoardBlock(true, true, true, true, false, _itemTypes[5])},
-        // Fixed line 3
-        {line: 5, column: 1, block: new BoardBlock(true, true, false, true, true, _itemTypes[4])},
-        {line: 5, column: 3, block: new BoardBlock(true, true, true, false, true, _itemTypes[7])},
-        {line: 5, column: 5, block: new BoardBlock(true, true, true, true, false, _itemTypes[5])},
-        {line: 5, column: 7, block: new BoardBlock(true, true, true, true, false, _itemTypes[5])},
-        // Fixed line 4
-        {line: 7, column: 1, block: new BoardBlock(true, true, false, false, true, _itemTypes[2])},
-        {line: 7, column: 3, block: new BoardBlock(true, true, true, false, true, _itemTypes[7])},
-        {line: 7, column: 5, block: new BoardBlock(true, true, true, false, true, _itemTypes[7])},
-        {line: 7, column: 7, block: new BoardBlock(true, true, true, false, false, _itemTypes[3])}
-    ];
+    var _outBoardBlock = null;
+    var _fixedBlocks = [];
     var _dynamicBlocks = [];
+    var _aloneBlock = null;
 
     // // Padrões para opções da chamada.
     // var defaults = {
@@ -91,7 +71,15 @@ function Labirinty() {
         if(!isValidConfig()){
             return;
         }
+
+        // Carrega peças e embaralha jogo.
+        loadFixedBlocks();
+        loadDynamicBlocks();
+        shuffle(_dynamicBlocks); // Embaralha posições dinamicas no tabuleiro.
         createGameBoard();
+        _aloneBlock = getNextDynamicBlock(); // Recupera o bloco que sobrou para uso na jogada.
+
+        // TODO: Inicia o jogo...
     }
 
     // /* 
@@ -109,6 +97,63 @@ function Labirinty() {
     // Construtor
     function _init() {
     };
+
+    /*
+    * Carrega a tabela de blocos dinâmicos da partida.
+    */
+    function loadDynamicBlocks() {
+        // 13 pecas soltas linha reta sem tesouros "│"
+        for(var i = 0; i < 13; i++){
+            var blockId = "DYN_PIPE_" + (i + 1);
+            _dynamicBlocks.push(new BoardBlock(blockId, false, true, false, true, false, _itemTypes[9]));
+        }
+        // 15 pecas soltas em L com Coruja, Aranha, Mariposa, Besouro, Rato, Lagarto "└"
+        var LTreasures = [1,4,6,13,14,17];
+        //     13, //     { "Id": 13, "Description": "Coruja", "Image": "CO" },
+        //     17, //     { "Id": 17, "Description": "Aranha", "Image": "A" },
+        //     6, //     { "Id": 6, "Description": "Mariposa", "Image": "MA" },
+        //     4, //     { "Id": 4, "Description": "Besouro", "Image": "B" },
+        //     1, //     { "Id": 1, "Description": "Rato", "Image": "R" },
+        //     14 //     { "Id": 14, "Description": "Lagarto", "Image": "LA" },
+        // ];
+        for(var i = 0; i < 15; i++){
+            var blockId = "DYN_L_" + (i + 1);
+            var treasureId = LTreasures[i] || null;
+            var item = getTreasureFromId(treasureId);
+            _dynamicBlocks.push(new BoardBlock(blockId, false, true, true, false, false, _itemTypes[2], item));
+        }
+
+        // 6 pecas soltas em T com Morcego, Fauno, Fantasma, Princesa, Genio, Dragao "┬"
+        var TTreasures = [9,10,11,16,18,24];
+        //     9, //     { "Id": 9, "Description": "Morcego", "Image": "MO" },
+        //     18, //     { "Id": 18, "Description": "Fauno", "Image": "FA" },
+        //     16, //     { "Id": 16, "Description": "Fantasma", "Image": "F" },
+        //     24, //     { "Id": 24, "Description": "Princesa", "Image": "P" }
+        //     11, //     { "Id": 11, "Description": "Genio", "Image": "G" },
+        //     10 //     { "Id": 10, "Description": "Dragao", "Image": "D" },
+        // ];
+        for(var i = 0; i < 6; i++){
+            var blockId = "DYN_T_" + (i + 1);
+            var treasureId = TTreasures[i] || null;
+            var item = getTreasureFromId(treasureId);
+            _dynamicBlocks.push(new BoardBlock(blockId, false, false, true, true, true, _itemTypes[6], item));
+        }
+    }
+
+    /*
+    * Recupera o objeto do tesouro de acordo com o Id informado.
+    */
+    function getTreasureFromId(id) {
+        var resultValue = null;
+        Labirinty.treasureList.forEach(function(value, index){
+            if(value.Id == id){
+                resultValue = value;
+                return;
+            }
+        });
+
+        return resultValue;
+    }
 
     /*
     * Metodo interno de extensão de objetos para substituir o $.extend() do Jquery qye não é dependência da classe.
@@ -147,7 +192,7 @@ function Labirinty() {
             var tr = document.createElement("tr");
             for(var column = 0; column < 9; column++){
                 var td = document.createElement("td");
-                td.textContent = "X";
+                td.textContent = "ERR";
                 definePositionType(line, column, td);
                 tr.appendChild(td);
             }
@@ -165,13 +210,84 @@ function Labirinty() {
             return;
         }
 
+        var isFixedBlock = false;
         _fixedBlocks.forEach(function(element) {
-            if(element.line == line && element.column == column){
-                td.className += " locked-item";
+            if(element.line == line && element.column == column) {
+                td.className += " locked-item " + element.block.Id;
                 td.textContent = element.block.ContentRepresentation + element.block.Treasure.Image;
+                isFixedBlock = true;
                 return;
             }
         }, this);
+
+        if(!isFixedBlock){
+            // TODO: Incluir peça aleatoria.
+            var dynBlock = getNextDynamicBlock();
+            td.className += " dynamic-item " + dynBlock.Id;
+            td.textContent = dynBlock.ContentRepresentation + dynBlock.Treasure.Image;
+        }
+    }
+
+    /*
+    * Efetuar a leitura dos blocos soltos em fila.
+    */
+    var blockToRead = 0;
+    function getNextDynamicBlock() {
+        // var dynBlock = _dynamicBlocks.pull();
+        var block = _dynamicBlocks[blockToRead];
+        blockToRead++;
+        return block;
+    }
+
+    /*
+    * Recupera o proximo tesouro para peça fixa.
+    */
+    var nextFixedTreasure = 0;
+    function getNextFixedTreasure(){
+        var FTreasures = [2,3,5,7,8,12,15,19,20,21,22,23];
+        // { "Id": 5, "Description": "Caveira", "Image": "CA" },
+        // { "Id": 7, "Description": "Espada", "Image": "E" },
+        // { "Id": 22, "Description": "Moedas", "Image": "ME" },
+        // { "Id": 21, "Description": "Molho de chaves", "Image": "MC" },
+        // { "Id": 23, "Description": "Esmeralda", "Image": "ES" },
+        // { "Id": 19, "Description": "Elmo", "Image": "EL" },
+        // { "Id": 8, "Description": "Livro", "Image": "L" },
+        // { "Id": 15, "Description": "Coroa", "Image": "CR" },
+        // { "Id": 12, "Description": "Bau", "Image": "BA" },
+        // { "Id": 2, "Description": "Candelabro", "Image": "C" },
+        // { "Id": 3, "Description": "Mapa", "Image": "M" },
+        // { "Id": 20, "Description": "Anel", "Image": "AN" },
+        var item = getTreasureFromId(FTreasures[nextFixedTreasure]);
+        nextFixedTreasure++;
+        return item;
+    }
+
+    /*
+    * Carrega a lista dos blocos fixos.
+    */
+    function loadFixedBlocks(){
+        _fixedBlocks = [
+            // Fixed line 1
+            {line: 1, column: 1, block: new BoardBlock("FIX_11", true, false, false, true, true, _itemTypes[0])}, 
+            {line: 1, column: 3, block: new BoardBlock("FIX_13", true, false, true, true, true, _itemTypes[6], getNextFixedTreasure())}, 
+            {line: 1, column: 5, block: new BoardBlock("FIX_15", true, false, true, true, true, _itemTypes[6], getNextFixedTreasure())}, 
+            {line: 1, column: 7, block: new BoardBlock("FIX_17", true, false, true, true, false, _itemTypes[1])},
+            // Fixed line 2
+            {line: 3, column: 1, block: new BoardBlock("FIX_31", true, true, false, true, true, _itemTypes[4], getNextFixedTreasure())},
+            {line: 3, column: 3, block: new BoardBlock("FIX_33", true, true, false, true, true, _itemTypes[4], getNextFixedTreasure())},
+            {line: 3, column: 5, block: new BoardBlock("FIX_35", true, false, true, true, true, _itemTypes[6], getNextFixedTreasure())}, 
+            {line: 3, column: 7, block: new BoardBlock("FIX_37", true, true, true, true, false, _itemTypes[5], getNextFixedTreasure())},
+            // Fixed line 3
+            {line: 5, column: 1, block: new BoardBlock("FIX_51", true, true, false, true, true, _itemTypes[4], getNextFixedTreasure())},
+            {line: 5, column: 3, block: new BoardBlock("FIX_53", true, true, true, false, true, _itemTypes[7], getNextFixedTreasure())},
+            {line: 5, column: 5, block: new BoardBlock("FIX_55", true, true, true, true, false, _itemTypes[5], getNextFixedTreasure())},
+            {line: 5, column: 7, block: new BoardBlock("FIX_57", true, true, true, true, false, _itemTypes[5], getNextFixedTreasure())},
+            // Fixed line 4
+            {line: 7, column: 1, block: new BoardBlock("FIX_71", true, true, false, false, true, _itemTypes[2])},
+            {line: 7, column: 3, block: new BoardBlock("FIX_73", true, true, true, false, true, _itemTypes[7], getNextFixedTreasure())},
+            {line: 7, column: 5, block: new BoardBlock("FIX_75", true, true, true, false, true, _itemTypes[7], getNextFixedTreasure())},
+            {line: 7, column: 7, block: new BoardBlock("FIX_77", true, true, true, false, false, _itemTypes[3])}
+        ];
     }
 
     /**
@@ -200,7 +316,7 @@ function Labirinty() {
 // Caveira, Espada, Moedas, Molho de chaves, Esmeralda, Elmo, Livro, Coroa, Bau, Candelabro, Mapa, Anel
 
 /*
-* Enumeration of treasure.
+* List of treasure.
 */
 Labirinty.treasureList = [
     { "Id": 0, "Description": "None", "Image": "" },
@@ -229,6 +345,7 @@ Labirinty.treasureList = [
     { "Id": 23, "Description": "Esmeralda", "Image": "ES" },
     { "Id": 24, "Description": "Princesa", "Image": "P" }
 ];
+
 /*
 * Enumeration of player color.
 */
@@ -244,7 +361,8 @@ Labirinty.player = { "Red": 1, "Yellow": 2, "Green": 3, "Blue": 4 };
 * @param contentRepresentation = Text or code to visual representation of peace.
 * @param treasure = Optional, treasure associated to block.
 */
-function BoardBlock(isLocked, topWay, leftWay, bottonWay, rightWay, contentRepresentation, treasure) {
+function BoardBlock(id, isLocked, topWay, leftWay, bottonWay, rightWay, contentRepresentation, treasure) {
+    this.Id = id;
     this.Locked = isLocked;
     this.TopWay = topWay;
     this.LeftWay = leftWay;
