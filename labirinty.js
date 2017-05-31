@@ -352,6 +352,33 @@ Labirinty.treasureList = [
 Labirinty.player = { "Red": 1, "Yellow": 2, "Green": 3, "Blue": 4 };
 
 /*
+* Representa um jogador
+* @param color = Cor do jogador, recebida como objeto Labirinty.player.
+*/
+function Player(color) {
+    this.Color = color;
+
+    // Recupera o Id numérico do jogador.
+    this.getPlayerId = function(){
+        return parseInt(this.Color);
+    }
+    
+    // Recupera a imagem do jogador.
+    this.getPlayerId = function(){
+        switch (this.Color) {
+            case Labirinty.player.Blue:
+                return "<p color='blue'>B</p>";
+            case Labirinty.player.Green:
+                return "G";
+            case Labirinty.player.Red:
+                return "R";
+            case Labirinty.player.Yellow:
+                return "B";
+        }
+    }
+}
+
+/*
 * Representa uma das peças do jogo.
 * @param isLocked = Indicate if block can be moved.
 * @param topWay = Indicate if top way is open to walk.
