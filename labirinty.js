@@ -108,68 +108,54 @@ function Labirinty() {
 	}
 	
 	function keyDown(e) {
-		var x = document.getElementsByClassName("alone-item");
+        var x = document.getElementsByClassName("alone-item");
+        if(!x){
+            return;
+        }
 		var y = x[0].parentElement;
 		
 		var x0 = x[0];
-        if(e.keyCode== 38 && y.rowIndex > 0 || e.keyCode== 40 && y.rowIndex < 8) {
-            switch(e.keyCode){
-                case 37:
-                    setAlonePosition(_aloneBlock, y.rowIndex, x0.cellIndex - 1);
-
-                    break;
-                case 38:
-                    console.log("up");
-                    setAlonePosition(_aloneBlock, y.rowIndex - 1, x0.cellIndex);
-                    x[0].textContent = "";
-                    //x[0].className = "action-item";
-                    break;
-                case 39:
-                    setAlonePosition(_aloneBlock, y.rowIndex, x0.cellIndex + 1);
-                    break;
-                case 40:
-                    console.log("down");
-                    setAlonePosition(_aloneBlock, y.rowIndex + 1, x0.cellIndex);
-                    x[0].textContent = "";
-                    x[0].className = "action-item";
-                    break;
-            }
+       
+        if(e.keyCode ==37 || e.keyCode == 39){
+            moveLeftRight(e.keyCode, x[0], y);
+        }
+        if(e.keyCode==38||e.keyCode==40){
+            moveUpDown(e.keyCode, x[0], y);
         }
         
-        /*if(e.keyCode==37 && x[0].cellIndex == 0) {
-			return;
-		}else if(e.keyCode == 37) {
-            setAlonePosition(_aloneBlock, y.rowIndex, x0.cellIndex - 1);
-            x[1].textContent = "";
-            x[1].className = "action-item";
-        }
+    }
 
-		if(e.keyCode==38 && x[0].rowPos == 0) {
-			return;
-		}else if(e.keyCode == 38) {
-            setAlonePosition(_aloneBlock, y.rowIndex -1, x0.cellIndex);
-            x[1].textContent = "";
-            x[1].className = "action-item";
+    function moveLeftRight(keyCode, line, column){
+        if(column.rowIndex!=0 && column.rowIndex!=8) {return;}
+        if(keyCode===37 && line.cellIndex===0) {return;}
+        if(keyCode===39 && line.cellIndex===8) {return;}
+        if(keyCode===37){
+            line.textContent = "";
+            line.className = "action-item";
+            setAlonePosition(_aloneBlock, column.rowIndex, line.cellIndex - 1);
         }
+        if(keyCode===39){
+            line.textContent = "";
+            line.className = "action-item";
+            setAlonePosition(_aloneBlock, column.rowIndex, line.cellIndex + 1);
+        }
+    }
 
-        if(e.keyCode==39 && x[0].cellIndex == 8) {
-			return;
-		}else if(e.keyCode == 39) {
-            setAlonePosition(_aloneBlock, y.rowIndex, x0.cellIndex + 1);
-            x[0].textContent = "";
-            x[0].className = "action-item";
+    function moveUpDown(keyCode,line, column){
+        if(line.cellIndex!=0 && line.cellIndex!=8) {return;}
+        if(keyCode===38 && column.rowIndex===0) {return;}
+        if(keyCode===40 && column.rowIndex===8) {return;}
+        if(keyCode===38){
+            line.textContent = "";
+            line.className = "action-item";
+            setAlonePosition(_aloneBlock, column.rowIndex - 1, line.cellIndex);
         }
-        
-        if(e.keyCode==40 && x[0].rowPos == 8) {
-			return;
-		}else if(e.keyCode == 40) {
-            setAlonePosition(_aloneBlock, y.rowIndex + 1, x0.cellIndex);
-            x[0].textContent = "";
-            x[0].className = "action-item";
-        }*/
-        //x[0].className = "action-item";
-        
-	}
+        if(keyCode===40){
+            line.textContent = "";
+            line.className = "action-item";
+            setAlonePosition(_aloneBlock, column.rowIndex + 1, line.cellIndex);
+        }
+    }
 	
     /*
     * Carrega a tabela de blocos dinâmicos da partida.
