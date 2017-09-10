@@ -122,7 +122,21 @@ function Labirinty() {
         if(e.keyCode==38||e.keyCode==40){
             moveUpDown(e.keyCode, x[0], y);
         }
-        
+
+        if(e.keyCode===32){
+            console.log("space");
+            moveBlock( x[0], y);
+        }
+    }
+
+    function moveBlock(line, column){
+        var nextElement = "bl-" + column.rowIndex + "-" + parseInt(line.cellIndex + 1);
+        var domEl = document.getElementById(nextElement);
+        if(domEl.className.indexOf("locked-item") > -1){
+            alert("Não pode trocar bloco fixo");
+            return;
+        }
+
     }
 
     function moveLeftRight(keyCode, line, column){
